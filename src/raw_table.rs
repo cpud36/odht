@@ -443,9 +443,15 @@ where
     }
 }
 
+pub(crate) mod private {
+    pub trait Sealed {}
+}
+
 /// A trait that lets us abstract over different lengths of fixed size byte
 /// arrays. Don't implement it for anything other than fixed size byte arrays!
-pub trait ByteArray: Sized + Copy + Eq + Clone + PartialEq + fmt::Debug + 'static {
+pub trait ByteArray:
+    Sized + Copy + Eq + Clone + PartialEq + fmt::Debug + private::Sealed + 'static
+{
     fn zeroed() -> Self;
     fn as_slice(&self) -> &[u8];
     fn equals(&self, other: &Self) -> bool;
@@ -453,6 +459,8 @@ pub trait ByteArray: Sized + Copy + Eq + Clone + PartialEq + fmt::Debug + 'stati
         self.as_slice().iter().all(|b| *b == 0)
     }
 }
+
+impl<const LEN: usize> private::Sealed for [u8; LEN] {}
 
 impl<const LEN: usize> ByteArray for [u8; LEN] {
     #[inline(always)]

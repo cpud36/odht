@@ -99,9 +99,10 @@ use std::borrow::{Borrow, BorrowMut};
 use swisstable_group_query::REFERENCE_GROUP_SIZE;
 
 pub use crate::fxhash::FxHashFn;
+pub use crate::raw_table::ByteArray;
 pub use crate::unhash::UnHashFn;
 
-use crate::raw_table::{ByteArray, RawIter, RawTable, RawTableMut};
+use crate::raw_table::{RawIter, RawTable, RawTableMut};
 
 /// This trait provides a complete "configuration" for a hash table, i.e. it
 /// defines the key and value types, how these are encoded and what hash
@@ -786,7 +787,7 @@ mod tests {
 
     mod quickchecks {
         use super::*;
-        use crate::raw_table::ByteArray;
+        use crate::raw_table::{private, ByteArray};
         use quickcheck::{Arbitrary, Gen};
         use rustc_hash::FxHashMap;
 
@@ -809,6 +810,7 @@ mod tests {
             }
         }
 
+        impl<const L: usize> private::Sealed for Bytes<L> {}
         impl<const L: usize> ByteArray for Bytes<L> {
             #[inline(always)]
             fn zeroed() -> Self {
